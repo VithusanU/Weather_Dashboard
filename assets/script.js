@@ -13,7 +13,7 @@ var countrySelect = $('#countrySelect')
 var searchHistoryArray = [];
 
 // Define the displayTodayWeather function in the global scope
-function displayTodayWeather(data) {
+function displayTodayWeather(data, forecastData) {
   var cityName = data.name;
   var temperature = data.main.temp;
   var weatherDescription = data.weather[0].description;
@@ -40,10 +40,81 @@ function displayTodayWeather(data) {
   renderForecastCards(forecastData);
 }
 
-// Rest of your code...
+
+function renderForecastCards(forecastList, cityName) {
+  // Clear any existing forecast cards
+  $("#forecastCards").empty();
+
+  // Check if forecastList is defined and is an array with at least one element
+  if (Array.isArray(forecastList) && forecastList.length > 0) {
+    // Loop through the forecast data
+    forecastList.forEach(function (forecast) {
+      var date = new Date(forecast.dt * 1000); // Convert timestamp to date
+      var dateStr = date.toLocaleDateString(); // Format the date as a string
+      var cityName = cityName; // Use the provided city name
+      var temperature = forecast.main.temp;
+      var weatherDescription = forecast.weather[0].description;
+      var iconCode = forecast.weather[0].icon;
+      var humidity = forecast.main.humidity;
+      var windSpeed = forecast.wind.speed;
+
+      // Create a forecast card with the date, city, and weather information
+      var cardHtml = `
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">${dateStr} - ${cityName}</h5>
+            <img src="https://openweathermap.org/img/wn/${iconCode}.png" alt="Weather Icon">
+            <p class="card-text">Temperature: ${temperature}°C</p>
+            <p class="card-text">Description: ${weatherDescription}</p>
+            <p class="card-text">Humidity: ${humidity}%</p>
+            <p class="card-text">Wind Speed: ${windSpeed} km/hr</p>
+          </div>
+        </div>
+      `;
+
+      // Append the card to the forecast cards container
+      $("#forecastCards").append(cardHtml);
+    });
+  } else {
+    // Handle the case where forecastList is undefined or empty
+    console.error('Invalid or empty forecast data:', forecastList);
+  }
+}
 
 
 
+
+function getCurrentLocationWeather() {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(function (position) {
+      var lat = position.coords.latitude;
+      var lon = position.coords.longitude;
+      getWeatherByCoordinates(lat, lon);
+    });
+  } else {
+    alert("Geolocation is not supported by your browser.");
+  }
+}
+
+function getWeatherByCoordinates(lat, lon) {
+  var apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+
+  fetch(apiUrl)
+    .then(function (response) {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Network response was not ok.');
+      }
+    })
+    .then(function (data) {
+      // Process the data and display today's weather in the large card
+      displayTodayWeather(data);
+    })
+    .catch(function (error) {
+      console.error('Fetch error:', error);
+    });
+}
 
 
 // Attempt to retrieve and parse data from localStorage
@@ -163,95 +234,33 @@ $(document).ready(function () {
         alert('Error: ' + error.message);
       });
   }
-
   function weatherForecast(cityName) {
     // Define the API URL for 5-day forecast
     var apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=metric`;
-
-    // Verify the constructed apiUrl
-    console.log('API URL:', apiUrl);
-
+  
     // Make the API request
     fetch(apiUrl)
-
-
-
-
-
-    // Call weatherForecast function with the desired city name
-    weatherForecast(searchTerm);
-
-
-
-
+      .then(function (response) {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('City not found. Please check the spelling.');
+        }
+      })
+      .then(function (data) {
+        console.log('API Response Data:', data); // Log the API response data
+        // Filter the data for the next 5 days (assuming each day has data at similar time intervals)
+        var next5DaysData = data.list.filter(function (forecast, index) {
+          // Filter based on the time of the forecast (e.g., every 8th entry for a 24-hour interval)
+          return index % 8 === 0;
+        });
+        renderForecastCards(next5DaysData); // Pass the filtered data to the function
+      })
+      .catch(function (error) {
+        alert('Error: ' + error.message);
+      });
+  }
   
-
-    function renderForecastCards(forecastData) {
-      // Assuming forecastData is an array containing weather forecast for upcoming days
-
-      // Clear any existing forecast cards
-      $("#forecastCards").empty();
-
-      // Loop through the next 5 days of forecast data
-      for (var i = 1; i <= 5; i++) {
-        var forecast = forecastData[i]; // Assuming the data is structured accordingly
-
-        // Create a forecast card with the same HTML structure as the large card
-        var cardHtml = `
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">${forecast.cityName}</h5>
-          <img src="https://openweathermap.org/img/wn/${forecast.icon}.png" alt="Weather Icon">
-          <p class="card-text">Temperature: ${forecast.temperature}°C</p>
-          <p class="card-text">Description: ${forecast.weatherDescription}</p>
-          <p class="card-text">Humidity: ${forecast.humidity}%</p>
-          <p class="card-text">Wind Speed: ${forecast.windSpeed} km/hr</p>
-        </div>
-      </div>
-    `;
-
-        // Append the card to the forecast cards container
-        $("#forecastCards").append(cardHtml);
-      }
-    }
-
-
-
-    // Function to get the user's current location
-    function getCurrentLocationWeather() {
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(function (position) {
-          var lat = position.coords.latitude;
-          var lon = position.coords.longitude;
-          getWeatherByCoordinates(lat, lon);
-        });
-      } else {
-        alert("Geolocation is not supported by your browser.");
-      }
-    }
-
-    // Function to get weather data by coordinates
-    function getWeatherByCoordinates(lat, lon) {
-      var apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
-
-      fetch(apiUrl)
-        .then(function (response) {
-          if (response.ok) {
-            return response.json();
-          } else {
-            throw new Error('Network response was not ok.');
-          }
-        })
-        .then(function (data) {
-          // Process the data and display today's weather in the large card
-          displayTodayWeather(data);
-        })
-        .catch(function (error) {
-          console.error('Fetch error:', error);
-        });
-    }
-  };
-
 
 
 
