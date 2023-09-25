@@ -249,17 +249,23 @@ $(document).ready(function () {
       })
       .then(function (data) {
         console.log('API Response Data:', data); // Log the API response data
+  
         // Filter the data for the next 5 days (assuming each day has data at similar time intervals)
         var next5DaysData = data.list.filter(function (forecast, index) {
           // Filter based on the time of the forecast (e.g., every 8th entry for a 24-hour interval)
           return index % 8 === 0;
         });
-        renderForecastCards(next5DaysData); // Pass the filtered data to the function
+  
+        console.log('Filtered Data:', next5DaysData); // Log the filtered data
+  
+        // Call renderForecastCards with the filtered data
+        renderForecastCards(next5DaysData, cityName);
       })
       .catch(function (error) {
         alert('Error: ' + error.message);
       });
   }
+  
   
 
 
