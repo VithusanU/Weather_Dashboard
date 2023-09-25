@@ -3,9 +3,20 @@
     left: -3%;
 }
 
-h1 {
-    margin-bottom: 0%;
-    background-image: linear-gradient(to right, rgb(255, 193, 8), rgb(175, 155, 57) , rgb(255, 0, 0));
-}
-
-
+/* Define a CSS class for the header */
+.header-bg {
+    background-image: url('./images/weather-sunnyday.gif');
+    background-size: cover; /* Adjust the sizing to your needs */
+    animation: backgroundAnimation 10s infinite alternate; /* Adjust animation duration and other properties */
+  }
+  
+  /* Define a keyframes animation for the background */
+  @keyframes backgroundAnimation {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(1.1);
+    }
+  }
+  
