@@ -12,6 +12,10 @@ var countrySelect = $('#countrySelect')
 //local storage arrays 
 var searchHistoryArray = [];
 
+
+
+
+
 // Define the displayTodayWeather function in the global scope
 function displayTodayWeather(data, forecastData) {
   var cityName = data.name;
@@ -20,6 +24,7 @@ function displayTodayWeather(data, forecastData) {
   var iconCode = data.weather[0].icon;
   var humidity = data.main.humidity;
   var windSpeed = data.wind.speed;
+  
 
   // Create an HTML structure for the weather information
   var weatherHtml = `
@@ -89,9 +94,9 @@ function getCurrentLocationWeather() {
     navigator.geolocation.getCurrentPosition(function (position) {
       var lat = position.coords.latitude;
       var lon = position.coords.longitude;
-      getWeatherByCoordinates(lat, lon);
       console.log("Fetching forecast data for current location...");
       getWeatherForecastByCoordinates(lat, lon);
+      getWeatherByCoordinates(lat, lon);
     });
   } else {
     alert("Geolocation is not supported by your browser.");
@@ -156,6 +161,8 @@ function getWeatherForecastByCoordinates(lat, lon) {
     })
     .catch(function (error) {
       console.error('Fetch error:', error);
+      console.log("Forecast data received:", data);
+
     });
 }
 
@@ -181,6 +188,8 @@ function getWeatherByCoordinates(lat, lon) {
     })
     .catch(function (error) {
       console.error('Fetch error:', error);
+      console.log("Forecast data received:", forecastData);
+      console.log("Forecast data received:", data);
     });
 }
 
@@ -195,7 +204,37 @@ try {
   console.error('Error parsing localStorage data:', error);
 }
 
+// Function to update the search history and append buttons
+function updateSearchHistory(city) {
+  // Add the city to the search history array
+  searchHistoryArray.push(city);
 
+  // Remove duplicate cities (if any) and limit the history to a certain number of items
+  searchHistoryArray = [...new Set(searchHistoryArray)];
+  if (searchHistoryArray.length > 5) {
+    searchHistoryArray.shift(); // Remove the oldest entry if there are more than 5 items
+  }
+
+  // Store the updated search history in localStorage
+  localStorage.setItem("history", JSON.stringify(searchHistoryArray));
+
+  // Clear the search history buttons
+  searchHistoryE1.empty();
+
+  // Create and append buttons for each item in the search history
+  searchHistoryArray.forEach(function (item) {
+    var historyButton = $("<button>")
+      .addClass("btn btn-secondary w-100 m-1")
+      .text(item);
+
+    // Add a click event listener to each history button
+    historyButton.on("click", function () {
+      weatherFunction(item);
+    });
+
+    searchHistoryE1.append(historyButton);
+  });
+}
 
 $(document).ready(function () {
   $("#search-button").on("click", function () {
@@ -222,6 +261,7 @@ $(document).ready(function () {
     // Proceed with fetching weather data if both city and country are provided
     // Call weatherFunction with the searchTerm
     weatherFunction(searchTerm);
+    
     $("#largeCard").show();
   });
 
