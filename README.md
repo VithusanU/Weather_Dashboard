@@ -7,7 +7,7 @@ SO THAT I can plan a trip accordingly.
 
 **Acceptance Criteria**
 
-=======
+
  **Project Description**
 This application is a weather dashboard that makes use of third-party apis to run in the browser and feature dynamically updated HTML and CSS. 
 
@@ -30,12 +30,13 @@ THEN I am again presented with current and future conditions for that city
 - jquery
 - ajax
 - bootstrap
+- bulma
 
 # Key features
 - city search
-- dispaly weather ( main card)
+- display weather ( main card)
 - display weather in 5 cards of the week
-- -displays date, and icon representation
+- displays date, and icon representation
 
 
 # How to Install and Run the project
@@ -47,4 +48,4 @@ Open github pages and will show the working 5 day weather forecast Dashboard
 # Credits
 
 Github- Vithusan U
->>>>>>> bb3de0ed40a718cb3cec07718728187f184ef867
+
