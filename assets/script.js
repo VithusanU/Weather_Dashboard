@@ -24,13 +24,16 @@ function displayTodayWeather(data, forecastData) {
   var iconCode = data.weather[0].icon;
   var humidity = data.main.humidity;
   var windSpeed = data.wind.speed;
-  
+
 
   // Create an HTML structure for the weather information
   var weatherHtml = `
     <div class="card">
+    <div class= 'card-header has-background-primary-light'>
+            <h5 class="card-title">${cityName}</h5>
+    </div>
       <div class="card-body">
-        <h5 class="card-title">${cityName}</h5>
+
         <img src="https://openweathermap.org/img/wn/${iconCode}.png" alt="Weather Icon">
         <p class="card-text">Temperature: ${temperature}°C</p>
         <p class="card-text">Description: ${weatherDescription}</p>
@@ -66,8 +69,11 @@ function renderForecastCards(forecastList, cityName) {
       // Create a forecast card with the date, city, and weather information
       var cardHtml = `
         <div class="card">
+       <div class= "card-header has-background-primary-light"
+       <h5 class="card-title">${dateStr} - ${cityName}</h5>
+       </div>
           <div class="card-body">
-            <h5 class="card-title">${dateStr} - ${cityName}</h5>
+            
             <img src="https://openweathermap.org/img/wn/${iconCode}.png" alt="Weather Icon">
             <p class="card-text">Temperature: ${temperature}°C</p>
             <p class="card-text">Description: ${weatherDescription}</p>
@@ -261,7 +267,7 @@ $(document).ready(function () {
     // Proceed with fetching weather data if both city and country are provided
     // Call weatherFunction with the searchTerm
     weatherFunction(searchTerm);
-    
+
     $("#largeCard").show();
   });
 
